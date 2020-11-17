@@ -3,7 +3,6 @@ const ATTACK_VALUE = 10;
 const MONSTER_ATTACH_VALUE = 20;
 const STRONG_ATTACK_VALUE = 15;
 const HEAL_VALUE = 20;
-const enteredNum = prompt('Maximum life for you and the monster.', '100');
 const LOG_EVENT_PLAYER_ATTACK = 'PLAYER_ATTACK';
 const LOG_EVENT_PLAYER_STRONG_ATTACK = 'PLAYER_STRONG_ATTACK';
 
@@ -11,17 +10,33 @@ const LOG_EVENT_MONSTER_ATTACK = 'MONSTER_ATTACK';
 const LOG_EVENT_PLAYER_HEAL = 'PLAYER_HEAL';
 const LOG_EVENT_GAME_OVER = 'GAME_OVER';
 
-// This value assign the max value of the progress bar
-let chosenMaxLife = parseInt(enteredNum);
+function getMaxlifesValues() {
+  const enteredNum = prompt('Maximum life for you and the monster.', '100');
 
-let battleLog = [];
-if (isNaN(chosenMaxLife) || chosenMaxLife <= 0) {
-  console.log('Is Not Valid Number, The maximun number will be 100');
+  // This value assign the max value of the progress bar
+  let parsedValue = parseInt(enteredNum);
+
+  if (isNaN(parsedValue) || parsedValue <= 0) {
+    throw { message: 'Invalid User Input, Not a Number' };
+    // console.log('Is Not Valid Number, The maximun number will be 100');
+  }
+
+  return parsedValue;
+}
+let chosenMaxLife;
+try {
+  chosenMaxLife = getMaxlifesValues();
+} catch (error) {
+  console.log(error);
   chosenMaxLife = 100;
 }
+
+let battleLog = [];
+
 let currentMonsterHealth = chosenMaxLife;
 let currentPlayerHealth = chosenMaxLife;
 let hasBonusLife = true;
+let lastLoggeEntry;
 adjustHealthBars(chosenMaxLife);
 
 function writeToLog(ev, val, monsterHealth, playerHealth) {
@@ -169,13 +184,16 @@ function healPlayerHandler() {
 
 function printLogHandler() {
   // console.log(battleLog);
-  i = 0;  
+  i = 0;
   for (const rs of battleLog) {
-  
-    // console.log(rs);
-    console.log(`#${i}`);
-    for (const variables in rs) {
-      console.log(`${variables} => ${rs[variables]}`);
+    if ((!lastLoggeEntry && lastLoggeEntry !== 0) || lastLoggeEntry < i) {
+      // console.log(rs);
+      console.log(`#${i}`);
+      for (const variables in rs) {
+        console.log(`${variables} => ${rs[variables]}`);
+      }
+      lastLoggeEntry = i;
+      break;
     }
     i++;
   }
